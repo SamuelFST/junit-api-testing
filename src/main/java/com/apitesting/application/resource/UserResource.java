@@ -1,5 +1,8 @@
 package com.apitesting.application.resource;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +25,12 @@ public class UserResource {
 
 	@Autowired
 	private UserService userService;
+
+	@GetMapping
+	public ResponseEntity<List<UserDTO>> findAll() {
+		return ResponseEntity.ok().body(userService.findAll().stream().map(user -> mapper.map(user, UserDTO.class))
+				.collect(Collectors.toList()));
+	}
 
 	@GetMapping(value = "/{userId}")
 	public ResponseEntity<UserDTO> findById(@PathVariable Integer userId) {
