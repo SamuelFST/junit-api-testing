@@ -7,6 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.apitesting.application.config.exception.service.DataIntegrityViolationException;
 import com.apitesting.application.config.exception.service.ObjectNotFoundException;
 import com.apitesting.application.domain.User;
 import com.apitesting.application.dto.UserDTO;
@@ -34,7 +35,13 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User create(UserDTO userDto) {
+		this.validateEmail(userDto.getEmail());
 		return userRepository.save(mapper.map(userDto, User.class));
 	}
 
+	private void validateEmail(String email) {
+		if (userRepository.findByEmail(email).isPresent()) {
+			throw new DataIntegrityViolationException("E-mail already in use");
+		}
+	}
 }
