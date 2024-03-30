@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import com.apitesting.application.service.UserService;
 public class UserResource {
 
 	static final String USER_ENDPOINT = "/user";
+	private static final String ID = "/{id}";
 
 	@Autowired
 	private ModelMapper mapper;
@@ -43,13 +45,19 @@ public class UserResource {
 
 	@PostMapping
 	public ResponseEntity<UserDTO> create(@RequestBody UserDTO userDto) {
-		return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+		return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest().path(ID)
 				.buildAndExpand(userService.create(userDto).getId()).toUri()).build();
 	}
 
-	@PutMapping(value = "/{id}")
+	@PutMapping(value = ID)
 	public ResponseEntity<UserDTO> update(@PathVariable Integer id, @RequestBody UserDTO userDto) {
 		userDto.setId(id);
 		return ResponseEntity.ok().body(mapper.map(userService.update(userDto), UserDTO.class));
+	}
+
+	@DeleteMapping(value = ID)
+	public ResponseEntity<UserDTO> delete(@PathVariable Integer id) {
+		userService.delete(id);
+		return ResponseEntity.noContent().build();
 	}
 }
