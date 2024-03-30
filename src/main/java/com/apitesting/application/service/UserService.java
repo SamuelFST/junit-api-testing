@@ -11,4 +11,6 @@ public interface UserService {
 	User findById(Integer id);
 
 	User create(UserDTO userDto);
+
+	User update(UserDTO userDto);
 }

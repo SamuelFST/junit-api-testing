@@ -35,13 +35,22 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User create(UserDTO userDto) {
-		this.validateEmail(userDto.getEmail());
+		this.validateEmail(userDto);
 		return userRepository.save(mapper.map(userDto, User.class));
 	}
 
-	private void validateEmail(String email) {
-		if (userRepository.findByEmail(email).isPresent()) {
+	@Override
+	public User update(UserDTO userDto) {
+		this.validateEmail(userDto);
+		return userRepository.save(mapper.map(userDto, User.class));
+	}
+
+	private void validateEmail(UserDTO userDto) {
+		Optional<User> user = userRepository.findByEmail(userDto.getEmail());
+
+		if (user.isPresent() && !user.get().getId().equals(userDto.getId())) {
 			throw new DataIntegrityViolationException("E-mail already in use");
 		}
 	}
+
 }
