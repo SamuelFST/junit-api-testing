@@ -1,15 +1,13 @@
 package com.apitesting.application.service.impl;
 
+import com.apitesting.application.config.exception.service.ObjectNotFoundException;
 import com.apitesting.application.domain.User;
 import com.apitesting.application.dto.UserDTO;
 import com.apitesting.application.repository.UserRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 
 import java.util.Optional;
@@ -25,6 +23,7 @@ class UserServiceImplTest {
     private static final String NAME = "Bob";
     public static final String EMAIL = "bob@mail.com";
     public static final String PASSWORD = "12345";
+    String OBJECT_NOT_FOUND_MESSAGE = "Object not found";
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -60,6 +59,18 @@ class UserServiceImplTest {
         assertEquals(ID, response.getId());
         assertEquals(NAME, response.getName());
         assertEquals(EMAIL, response.getEmail());
+    }
+
+    @Test
+    void whenFindByIdNotFoundThenReturnException() {
+        when(userRepository.findById(anyInt())).thenThrow(new ObjectNotFoundException(OBJECT_NOT_FOUND_MESSAGE));
+
+        try {
+            userService.findById(ID);
+        } catch (Exception ex) {
+            assertEquals(ObjectNotFoundException.class, ex.getClass());
+            assertEquals(OBJECT_NOT_FOUND_MESSAGE, ex.getMessage());
+        }
     }
 
     @Test
