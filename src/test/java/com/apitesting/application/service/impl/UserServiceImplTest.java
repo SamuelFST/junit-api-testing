@@ -48,9 +48,17 @@ class UserServiceImplTest {
 
     @Test
     void whenFindAllThenReturnAnListOfUsers() {
+        final int INDEX = 0;
         when(userRepository.findAll()).thenReturn(List.of(user));
 
         List<User> response = userService.findAll();
+
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertEquals(User.class, response.get(INDEX).getClass());
+        assertEquals(ID, response.get(INDEX).getId());
+        assertEquals(NAME, response.get(INDEX).getName());
+        assertEquals(EMAIL, response.get(INDEX).getEmail());
     }
 
     @Test
