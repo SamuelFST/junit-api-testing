@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.util.Optionals;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,7 +47,10 @@ class UserServiceImplTest {
     }
 
     @Test
-    void findAll() {
+    void whenFindAllThenReturnAnListOfUsers() {
+        when(userRepository.findAll()).thenReturn(List.of(user));
+
+        List<User> response = userService.findAll();
     }
 
     @Test
@@ -63,7 +68,7 @@ class UserServiceImplTest {
 
     @Test
     void whenFindByIdNotFoundThenReturnException() {
-        when(userRepository.findById(anyInt())).thenThrow(new ObjectNotFoundException(OBJECT_NOT_FOUND_MESSAGE));
+        when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         try {
             userService.findById(ID);
