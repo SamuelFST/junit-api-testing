@@ -26,6 +26,7 @@ class UserServiceImplTest {
     private static final String NAME = "Bob";
     public static final String EMAIL = "bob@mail.com";
     public static final String PASSWORD = "12345";
+    public static final String MAIL_ALREADY_IN_USE = "E-mail already in use";
     String OBJECT_NOT_FOUND_MESSAGE = "Object not found";
 
     @InjectMocks
@@ -110,12 +111,35 @@ class UserServiceImplTest {
             userService.create(userDto);
         } catch (Exception ex) {
             assertEquals(DataIntegrityViolationException.class, ex.getClass());
-            assertEquals("E-mail already in use", ex.getMessage());
+            assertEquals(MAIL_ALREADY_IN_USE, ex.getMessage());
         }
     }
 
     @Test
-    void update() {
+    void whenUpdateUserThenReturnSuccess() {
+        when(userRepository.save(any())).thenReturn(user);
+
+        User response = userService.update(userDto);
+
+        assertNotNull(response);
+        assertEquals(User.class, response.getClass());
+        assertEquals(ID, response.getId());
+        assertEquals(NAME, response.getName());
+        assertEquals(EMAIL, response.getEmail());
+        assertEquals(PASSWORD, response.getPassword());
+    }
+
+    @Test
+    void whenUpdateUserWithUsedEmailByOtherUserThenReturnException() {
+        when(userRepository.findByEmail(anyString())).thenReturn(optionalUser);
+
+        try {
+            optionalUser.ifPresent(user -> user.setId(2));
+            userService.update(userDto);
+        } catch (Exception ex) {
+            assertEquals(DataIntegrityViolationException.class, ex.getClass());
+            assertEquals(MAIL_ALREADY_IN_USE, ex.getMessage());
+        }
     }
 
     @Test
