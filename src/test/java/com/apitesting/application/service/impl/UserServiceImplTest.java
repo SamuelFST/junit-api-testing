@@ -1,5 +1,6 @@
 package com.apitesting.application.service.impl;
 
+import com.apitesting.application.config.exception.service.DataIntegrityViolationException;
 import com.apitesting.application.config.exception.service.ObjectNotFoundException;
 import com.apitesting.application.domain.User;
 import com.apitesting.application.dto.UserDTO;
@@ -15,8 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
@@ -88,7 +88,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void whenCreateThenReturnSucess() {
+    void whenCreateUserThenReturnSucess() {
         when(userRepository.save(any())).thenReturn(user);
 
         User response = userService.create(userDto);
@@ -99,6 +99,19 @@ class UserServiceImplTest {
         assertEquals(NAME, response.getName());
         assertEquals(EMAIL, response.getEmail());
         assertEquals(PASSWORD, response.getPassword());
+    }
+
+    @Test
+    void whenCreateUserWithUsedEmailThenReturnException() {
+        when(userRepository.findByEmail(anyString())).thenReturn(optionalUser);
+
+        try {
+            optionalUser.ifPresent(user -> user.setId(2));
+            userService.create(userDto);
+        } catch (Exception ex) {
+            assertEquals(DataIntegrityViolationException.class, ex.getClass());
+            assertEquals("E-mail already in use", ex.getMessage());
+        }
     }
 
     @Test
