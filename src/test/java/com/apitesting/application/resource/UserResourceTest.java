@@ -14,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,10 +27,12 @@ import static org.mockito.MockitoAnnotations.openMocks;
 @SpringBootTest
 class UserResourceTest {
 
+    private static final int OK = HttpStatus.OK.value();
     private static final Integer ID = 1;
     private static final String NAME = "Bob";
     public static final String EMAIL = "bob@mail.com";
     public static final String PASSWORD = "12345";
+    private static final int INDEX = 0;
 
     @InjectMocks
     private UserResource userResource;
@@ -49,7 +53,18 @@ class UserResourceTest {
     }
 
     @Test
-    void findAll() {
+    void whenFindAllThenReturnListOfUserDto() {
+        when(userService.findAll()).thenReturn(List.of(user));
+        when(mapper.map(any(), any())).thenReturn(userDto);
+
+        ResponseEntity<List<UserDTO>> response = userResource.findAll();
+
+        assertNotNull(response);
+        assertNotNull(response.getBody());
+        assertEquals(ResponseEntity.class, response.getClass());
+        assertEquals(ArrayList.class, response.getBody().getClass());
+        assertEquals(UserDTO.class, response.getBody().get(INDEX).getClass());
+        assertEquals(OK, response.getStatusCode().value());
     }
 
     @Test
@@ -63,7 +78,7 @@ class UserResourceTest {
         assertNotNull(response.getBody());
         assertEquals(ResponseEntity.class, response.getClass());
         assertEquals(UserDTO.class, response.getBody().getClass());
-        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        assertEquals(OK, response.getStatusCode().value());
     }
 
     @Test
